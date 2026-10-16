@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPI Number Representation Demonstrator</title>
+<meta name="description" content="How text can be represented as numbers, and how UUIDv5 derives a Federated Payer Identifier from a namespace and a value.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="page-header">
+  <h1>FPI Number Representation Demonstrator</h1>
+  <p class="lede">
+    The same information can be written many ways &mdash; as text, as character
+    codes, as hexadecimal, as binary, even as Roman numerals. Those are
+    <strong>representations</strong>: change the notation and you can always
+    change it back.
+  </p>
+  <div class="callout callout-key">
+    <p>
+      A <strong>UUIDv5 is not a representation.</strong> It is a hash-derived
+      identifier. Given the same namespace and value it always produces the same
+      UUID, which is what makes it reproducible and auditable &mdash; but the
+      UUID is not a reversible encoding of its inputs. You cannot read the
+      identifier value back out of it, and two different source identifiers for
+      the same payer do <em>not</em> converge on one FPI.
+    </p>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. Quick starts ------------------------------------------------- -->
+  <section id="quick-starts">
+    <h2>Quick starts</h2>
+    <p class="section-intro">
+      Examples drawn from the Federated Payer Identifier project. Selecting one
+      fills the two inputs below.
+    </p>
+    <div id="example-buttons" class="example-buttons"></div>
+    <p id="example-note" class="example-note" hidden></p>
+  </section>
+
+  <!-- 2. The two inputs ----------------------------------------------- -->
+  <section id="inputs">
+    <h2>The two inputs</h2>
+    <p class="section-intro">
+      Everything on this page is derived from exactly these two values.
+    </p>
+
+    <div class="input-grid">
+      <div class="field">
+        <label for="system-select">Identifier system (namespace)</label>
+        <select id="system-select"></select>
+        <p class="field-help" id="system-help"></p>
+      </div>
+
+      <div class="field">
+        <label for="value-input">Identifier value</label>
+        <input type="text" id="value-input" autocomplete="off" spellcheck="false"
+               placeholder="e.g. 12345">
+        <p class="field-help">
+          Treated as <strong>text</strong>, never as a number, so values such as
+          <code>00123</code> keep their leading zeroes.
+        </p>
+      </div>
+    </div>
+
+    <p id="state-hint" class="hint hint-state" hidden></p>
+    <p id="source-caution" class="hint hint-caution" hidden></p>
+  </section>
+
+  <!-- 3. Live derivation ---------------------------------------------- -->
+  <section id="derivation">
+    <h2>Live derivation</h2>
+    <p class="section-intro">
+      A UUIDv5 FPI is built in two chained hashing steps. Each stage below shows
+      what went in and what came out.
+    </p>
+
+    <ol class="stages" id="stages"></ol>
+
+    <div class="fpi-result">
+      <h3>Resulting FPI</h3>
+      <output id="fpi-output" class="fpi-value">&nbsp;</output>
+      <button class="copy-btn" data-copy-target="fpi-output" type="button">Copy</button>
+      <p id="fpi-match" class="fpi-match" hidden></p>
+    </div>
+
+    <div class="callout callout-warn">
+      <h3>What this does and does not mean</h3>
+      <ul>
+        <li><strong>Deterministic:</strong> the same system and value always give this same UUID.</li>
+        <li><strong>One-way:</strong> the inputs cannot be recovered from the UUID. The arrows above only run left to right.</li>
+        <li><strong>Non-converging:</strong> change the system or a single character of the value and you get an unrelated UUID. Different source identifiers for one payer do not merge into a single FPI.</li>
+      </ul>
+    </div>
+  </section>

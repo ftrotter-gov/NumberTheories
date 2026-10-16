@@ -1,0 +1,12 @@
+{
+  "name": "number-theories",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FPI Number Representation Demonstrator. The site in docs/ has no build step and no runtime dependencies; this file exists only so Node treats the ES modules as modules when running the tests.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "serve": "python3 -m http.server 8000 --directory docs"
+  },
+  "license": "CC0-1.0"
+}
