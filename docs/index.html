@@ -97,3 +97,129 @@
       </ul>
     </div>
   </section>
+
+  <!-- 4. Representations ---------------------------------------------- -->
+  <section id="representations">
+    <h2>Representation views</h2>
+    <p class="section-intro">
+      Both inputs as numbers. Every character becomes its ASCII (Unicode code
+      point) value &mdash; including hyphens and letters &mdash; which is what
+      lets a value such as <code>TX-68775</code> be written numerically at all.
+    </p>
+
+    <h3>System name: <code id="repr-system-name"></code></h3>
+    <div id="repr-system"></div>
+
+    <h3>Identifier value: <code id="repr-value-label"></code></h3>
+    <div id="repr-value"></div>
+  </section>
+
+  <!-- 5. Reversible arithmetic ---------------------------------------- -->
+  <section id="arithmetic">
+    <h2>Reversible, for contrast</h2>
+    <p class="section-intro">
+      Arithmetic runs both ways. Add 12, then subtract 12, and you are back
+      where you started &mdash; the operation carries enough information to
+      undo it.
+    </p>
+
+    <div class="arith-grid">
+      <div class="field">
+        <label for="arith-x">Enter <em>x</em></label>
+        <input type="number" id="arith-x" value="30" autocomplete="off">
+        <p class="arith-result" id="arith-forward"></p>
+      </div>
+      <div class="field">
+        <label for="arith-y">Now enter that <em>y</em></label>
+        <input type="number" id="arith-y" value="42" autocomplete="off">
+        <p class="arith-result" id="arith-back"></p>
+      </div>
+    </div>
+
+    <div class="callout callout-contrast">
+      <p>
+        There is no such inverse for UUIDv5. No operation takes
+        <code id="contrast-fpi"></code> back to its system and value. The only
+        way to confirm an FPI is to recompute it from a declared source and
+        check that the two match &mdash; which is exactly what the derivation
+        above does.
+      </p>
+    </div>
+  </section>
+
+  <!-- 6. Full Roman ---------------------------------------------------- -->
+  <section id="roman">
+    <h2>Complete Roman numeral output</h2>
+
+    <details class="notation">
+      <summary>Notation for values beyond the ordinary Roman range</summary>
+      <p>
+        Ordinary Roman numerals stop at 3,999. The numbers here go far past
+        that, so each wrapping pair of parentheses multiplies by 1,000 &mdash;
+        an ASCII stand-in for the <em>vinculum</em>, the overbar used
+        classically for the same purpose.
+      </p>
+      <ul>
+        <li><code>(X)</code> = 10 &times; 1,000 = 10,000</li>
+        <li><code>((I))</code> = 1 &times; 1,000 &times; 1,000 = 1,000,000</li>
+        <li><code>((I))(I)CMLXXXVII</code> = 1,001,987</li>
+        <li><code>nulla</code> = zero, which Roman numerals have no symbol for</li>
+      </ul>
+      <p>Nothing below is truncated, however long it runs.</p>
+    </details>
+
+    <article class="long-output">
+      <h3>Identifier value as a Roman numeral</h3>
+      <p class="output-meta" id="roman-value-meta"></p>
+      <pre class="scroll-box" id="roman-value"></pre>
+      <button class="copy-btn" data-copy-target="roman-value" type="button">Copy in full</button>
+    </article>
+
+    <article class="long-output">
+      <h3>Resulting FPI as a Roman numeral</h3>
+      <p class="output-meta" id="roman-fpi-meta"></p>
+      <pre class="scroll-box" id="roman-fpi"></pre>
+      <button class="copy-btn" data-copy-target="roman-fpi" type="button">Copy in full</button>
+    </article>
+  </section>
+
+  <!-- 7. Full binary --------------------------------------------------- -->
+  <section id="binary">
+    <h2>Complete binary output</h2>
+    <p class="section-intro">
+      Binary for the <strong>text inputs</strong> is listed separately from
+      binary for the <strong>resulting UUID</strong>. They are different things:
+      one is an encoding of what you typed, the other is the hash output.
+    </p>
+
+    <article class="long-output">
+      <h3>Binary of the text inputs</h3>
+      <p class="output-meta" id="binary-text-meta"></p>
+      <pre class="scroll-box" id="binary-text"></pre>
+      <button class="copy-btn" data-copy-target="binary-text" type="button">Copy in full</button>
+    </article>
+
+    <article class="long-output">
+      <h3>Binary of the resulting UUID</h3>
+      <p class="output-meta" id="binary-uuid-meta"></p>
+      <pre class="scroll-box" id="binary-uuid"></pre>
+      <button class="copy-btn" data-copy-target="binary-uuid" type="button">Copy in full</button>
+    </article>
+  </section>
+
+</main>
+
+<footer class="page-footer">
+  <p>
+    Educational demonstration. Identifier system reference data is a vendored
+    snapshot from the
+    <a href="https://github.com/ftrotter-gov/FederatedPayerIdentifier">Federated
+    Payer Identifier project</a>; this page illustrates the concepts and is not
+    the authoritative FPI tooling.
+  </p>
+  <p>Everything runs in your browser. No input leaves this page.</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
