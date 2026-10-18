@@ -80,10 +80,42 @@ function buildExampleButtons() {
 
 /* ---------- rendering helpers ---------- */
 
-function reprRow(label, value, { note, isEncoding } = {}) {
+/**
+ * The page-wide two-column row: everything explanatory on the left, the
+ * resulting value alone on the right, set larger.
+ *
+ * @param {Node|Node[]} left
+ * @param {Node|Node[]} right
+ */
+function row2(left, right, extraClass = '') {
   const row = document.createElement('div');
-  row.className = 'repr-row';
+  row.className = extraClass ? `row2 ${extraClass}` : 'row2';
 
+  const leftCell = document.createElement('div');
+  leftCell.className = 'row2-left';
+  leftCell.append(...[left].flat());
+
+  const rightCell = document.createElement('div');
+  rightCell.className = 'row2-right';
+  rightCell.append(...[right].flat());
+
+  row.append(leftCell, rightCell);
+  return row;
+}
+
+/** Column headings above a run of two-column rows. */
+function columnHeadings(leftText, rightText) {
+  const head = document.createElement('div');
+  head.className = 'row2-colhead';
+  const a = document.createElement('span');
+  a.textContent = leftText;
+  const b = document.createElement('span');
+  b.textContent = rightText;
+  head.append(a, b);
+  return head;
+}
+
+function reprRow(label, value, { note, isEncoding } = {}) {
   const labelEl = document.createElement('span');
   labelEl.className = 'repr-label';
   labelEl.textContent = label;
@@ -94,19 +126,20 @@ function reprRow(label, value, { note, isEncoding } = {}) {
     tag.textContent = 'encoding';
     labelEl.append(tag);
   }
+
+  const left = [labelEl];
   if (note) {
     const noteEl = document.createElement('span');
     noteEl.className = 'repr-note';
-    noteEl.textContent = ` — ${note}`;
-    labelEl.append(noteEl);
+    noteEl.textContent = note;
+    left.push(noteEl);
   }
 
   const valueEl = document.createElement('p');
   valueEl.className = isEncoding ? 'repr-value encoding' : 'repr-value';
   valueEl.textContent = value;
 
-  row.append(labelEl, valueEl);
-  return row;
+  return row2(left, valueEl, 'repr-row');
 }
 
 /** Per-character grid plus the concatenated encodings, kept visually apart. */
@@ -150,6 +183,7 @@ function renderRepresentation(container, text) {
   container.append(caption);
 
   container.append(
+    columnHeadings('Representation', 'Value'),
     reprRow('Character codes, kept separate', info.spacedCodes, {
       note: 'one code per character',
     }),
@@ -175,25 +209,29 @@ function renderRepresentation(container, text) {
 
 function renderStages(result) {
   el.stages.replaceChildren();
+
   for (const stage of result.stages) {
     const li = document.createElement('li');
 
     const label = document.createElement('div');
     label.className = 'stage-label';
     label.textContent = stage.label;
-    li.append(label);
 
     const detail = document.createElement('p');
     detail.className = 'stage-detail';
     detail.textContent = stage.detail;
-    li.append(detail);
 
+    const output = document.createElement('p');
     if (stage.output) {
-      const output = document.createElement('p');
-      output.className = 'stage-output';
+      output.className = 'row2-result';
       output.textContent = stage.output;
-      li.append(output);
+    } else {
+      // The first stage is the inputs themselves; it has no derived result.
+      output.className = 'row2-result is-muted';
+      output.textContent = 'the two inputs, nothing derived yet';
     }
+
+    li.append(row2([label, detail], output));
     el.stages.append(li);
   }
 }
