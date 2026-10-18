@@ -28,15 +28,11 @@ const el = {
   stages: $('stages'),
   fpiOutput: $('fpi-output'),
   fpiMatch: $('fpi-match'),
+  reprConcat: $('repr-concat'),
   reprSystemName: $('repr-system-name'),
   reprSystem: $('repr-system'),
   reprValueLabel: $('repr-value-label'),
   reprValue: $('repr-value'),
-  arithX: $('arith-x'),
-  arithY: $('arith-y'),
-  arithForward: $('arith-forward'),
-  arithBack: $('arith-back'),
-  contrastFpi: $('contrast-fpi'),
   romanValue: $('roman-value'),
   romanValueMeta: $('roman-value-meta'),
   romanFpi: $('roman-fpi'),
@@ -156,21 +152,40 @@ function renderRepresentation(container, text) {
 
   const info = describeText(text);
 
+  // Each cell names the three encodings, so the rows are readable on their own
+  // rather than relying on a caption to say which number is which.
   const grid = document.createElement('div');
   grid.className = 'char-grid';
   for (const c of info.chars) {
     const cell = document.createElement('div');
     cell.className = c.isAlphanumeric ? 'char-cell' : 'char-cell non-alnum';
-    cell.innerHTML =
-      `<span class="glyph"></span>` +
-      `<span class="code"></span>` +
-      `<span class="sub">0x</span>` +
-      `<span class="sub"></span>`;
-    cell.children[0].textContent = c.display;
-    cell.children[1].textContent = c.decimal;
-    cell.children[2].textContent = `0x${c.hex}`;
-    cell.children[3].textContent = c.binary;
-    cell.title = `"${c.char}" — code ${c.code}, hex ${c.hex}, binary ${c.binary}`;
+
+    const glyph = document.createElement('span');
+    glyph.className = 'glyph';
+    glyph.textContent = c.display;
+    cell.append(glyph);
+
+    for (const [name, text, cls] of [
+      ['ascii', c.decimal, 'code'],
+      ['hex', `0x${c.hex}`, 'sub'],
+      ['binary', c.binary, 'sub'],
+    ]) {
+      const line = document.createElement('span');
+      line.className = `cell-line ${cls}`;
+
+      const key = document.createElement('span');
+      key.className = 'cell-key';
+      key.textContent = name;
+
+      const val = document.createElement('span');
+      val.className = 'cell-val';
+      val.textContent = text;
+
+      line.append(key, val);
+      cell.append(line);
+    }
+
+    cell.title = `"${c.char}" — ascii ${c.code}, hex ${c.hex}, binary ${c.binary}`;
     grid.append(cell);
   }
   container.append(grid);
@@ -179,7 +194,9 @@ function renderRepresentation(container, text) {
   caption.className = 'field-help';
   caption.textContent = `${info.charCount} character${
     info.charCount === 1 ? '' : 's'
-  }, ${info.byteCount} UTF-8 byte${info.byteCount === 1 ? '' : 's'}. Each box is one character: glyph, decimal code, hex, binary.`;
+  }, ${info.byteCount} UTF-8 byte${
+    info.byteCount === 1 ? '' : 's'
+  }. Each box is one character, with its ASCII code, hexadecimal and binary.`;
   container.append(caption);
 
   container.append(
@@ -203,6 +220,50 @@ function renderRepresentation(container, text) {
     reprRow('As one big-endian integer', groupDigits(info.bigInt.toString()), {
       isEncoding: true,
       note: 'all the bytes read as a single number',
+    })
+  );
+}
+
+/**
+ * The simplest combination of the two inputs: join them with "--".
+ *
+ * Shown first because it is the honest baseline for comparison. It carries
+ * exactly the same information as the two inputs and can be split straight
+ * back apart, which is precisely what the UUID cannot do.
+ */
+function renderConcatenation(container, systemName, value) {
+  container.replaceChildren();
+
+  const joined = `${systemName}--${value}`;
+  const info = describeText(joined);
+
+  container.append(columnHeadings('Representation', 'Value'));
+
+  container.append(
+    reprRow('Mere concatenation', joined, {
+      note: 'system name, two hyphens, then the identifier value',
+    })
+  );
+
+  // Splitting on the first "--" recovers both inputs exactly.
+  const [backSystem, ...restParts] = joined.split('--');
+  const backValue = restParts.join('--');
+  const exact = backSystem === systemName && backValue === value;
+
+  container.append(
+    reprRow(
+      'Split back apart',
+      exact
+        ? `"${backSystem}"  +  "${backValue}"`
+        : 'the separator is ambiguous for this input',
+      {
+        note: exact
+          ? 'reversible: both inputs recovered exactly'
+          : 'the value itself contains "--", so the split is not unique',
+      }
+    ),
+    reprRow('Length', `${info.charCount} characters, ${info.byteCount} bytes`, {
+      note: 'grows with the inputs, unlike the fixed-size UUID',
     })
   );
 }
@@ -321,20 +382,6 @@ function renderLongOutputs(result, value) {
     'The resulting UUID is always exactly 128 bits, whatever the length of the inputs. This is hash output, not an encoding of the text above.';
 }
 
-function renderArithmetic() {
-  const x = Number(el.arithX.value);
-  const y = Number(el.arithY.value);
-
-  el.arithForward.textContent =
-    el.arithX.value !== '' && Number.isFinite(x)
-      ? `${x} + 12 = ${x + 12}`
-      : 'Enter a number.';
-  el.arithBack.textContent =
-    el.arithY.value !== '' && Number.isFinite(y)
-      ? `${y} \u2212 12 = ${y - 12}`
-      : 'Enter a number.';
-}
-
 /* ---------- the single render pass ---------- */
 
 function render(activeExampleId = null) {
@@ -347,9 +394,10 @@ function render(activeExampleId = null) {
   renderStages(result);
 
   el.fpiOutput.textContent = result.fpi;
-  el.contrastFpi.textContent = result.fpi;
 
   renderExampleState(activeExampleId, result);
+
+  renderConcatenation(el.reprConcat, result.systemName, value);
 
   el.reprSystemName.textContent = result.systemName;
   el.reprValueLabel.textContent = value || '(empty)';
@@ -402,8 +450,5 @@ el.valueInput.value = '12345';
 // necessarily match it.
 el.systemSelect.addEventListener('change', () => render());
 el.valueInput.addEventListener('input', () => render());
-el.arithX.addEventListener('input', renderArithmetic);
-el.arithY.addEventListener('input', renderArithmetic);
 
 render('naic');
-renderArithmetic();

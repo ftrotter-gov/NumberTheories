@@ -104,7 +104,7 @@
       <h3>What this does and does not mean</h3>
       <ul>
         <li><strong>Deterministic:</strong> the same system and value always give this same UUID.</li>
-        <li><strong>One-way:</strong> the inputs cannot be recovered from the UUID. Each step above reads left to right into its result, and never back again.</li>
+        <li><strong>One-way:</strong> the inputs cannot be recovered from the UUID. Each step above reads left to right into its result, and never back again. The only way to confirm an FPI is to recompute it from a declared source and check that the two match.</li>
         <li><strong>Non-converging:</strong> change the system or a single character of the value and you get an unrelated UUID. Different source identifiers for one payer do not merge into a single FPI.</li>
       </ul>
     </div>
@@ -119,6 +119,14 @@
       lets a value such as <code>TX-68775</code> be written numerically at all.
     </p>
 
+    <h3>Mere concatenation</h3>
+    <p class="field-help repr-lead">
+      The simplest way to combine the two inputs: join them with a separator
+      and keep every character. Unlike the UUID, this is fully reversible
+      &mdash; split on the <code>--</code> and both inputs come straight back.
+    </p>
+    <div id="repr-concat"></div>
+
     <h3>System name: <code id="repr-system-name"></code></h3>
     <div id="repr-system"></div>
 
@@ -126,40 +134,7 @@
     <div id="repr-value"></div>
   </section>
 
-  <!-- 5. Reversible arithmetic ---------------------------------------- -->
-  <section id="arithmetic">
-    <h2>Reversible, for contrast</h2>
-    <p class="section-intro">
-      Arithmetic runs both ways. Add 12, then subtract 12, and you are back
-      where you started &mdash; the operation carries enough information to
-      undo it.
-    </p>
-
-    <div class="arith-grid">
-      <div class="field">
-        <label for="arith-x">Enter <em>x</em></label>
-        <input type="number" id="arith-x" value="30" autocomplete="off">
-        <p class="arith-result" id="arith-forward"></p>
-      </div>
-      <div class="field">
-        <label for="arith-y">Now enter that <em>y</em></label>
-        <input type="number" id="arith-y" value="42" autocomplete="off">
-        <p class="arith-result" id="arith-back"></p>
-      </div>
-    </div>
-
-    <div class="callout callout-contrast">
-      <p>
-        There is no such inverse for UUIDv5. No operation takes
-        <code id="contrast-fpi"></code> back to its system and value. The only
-        way to confirm an FPI is to recompute it from a declared source and
-        check that the two match &mdash; which is exactly what the derivation
-        above does.
-      </p>
-    </div>
-  </section>
-
-  <!-- 6. Full Roman ---------------------------------------------------- -->
+  <!-- 5. Full Roman ---------------------------------------------------- -->
   <section id="roman">
     <h2>Complete Roman numeral output</h2>
 
@@ -180,30 +155,35 @@
       <p>Nothing below is truncated, however long it runs.</p>
     </details>
 
-    <article class="long-output">
+    <div class="row2-colhead">
+      <span>Representation</span>
+      <span>Value</span>
+    </div>
+
+    <div class="row2">
       <div class="row2-left">
-        <h3>Identifier value as a Roman numeral</h3>
-        <p class="output-meta" id="roman-value-meta"></p>
+        <span class="repr-label">Identifier value as a Roman numeral</span>
+        <span class="repr-note" id="roman-value-meta"></span>
       </div>
       <div class="row2-right">
         <pre class="scroll-box" id="roman-value"></pre>
         <button class="copy-btn" data-copy-target="roman-value" type="button">Copy in full</button>
       </div>
-    </article>
+    </div>
 
-    <article class="long-output">
+    <div class="row2">
       <div class="row2-left">
-        <h3>Resulting FPI as a Roman numeral</h3>
-        <p class="output-meta" id="roman-fpi-meta"></p>
+        <span class="repr-label">Resulting FPI as a Roman numeral</span>
+        <span class="repr-note" id="roman-fpi-meta"></span>
       </div>
       <div class="row2-right">
         <pre class="scroll-box" id="roman-fpi"></pre>
         <button class="copy-btn" data-copy-target="roman-fpi" type="button">Copy in full</button>
       </div>
-    </article>
+    </div>
   </section>
 
-  <!-- 7. Full binary --------------------------------------------------- -->
+  <!-- 6. Full binary --------------------------------------------------- -->
   <section id="binary">
     <h2>Complete binary output</h2>
     <p class="section-intro">
@@ -212,27 +192,32 @@
       one is an encoding of what you typed, the other is the hash output.
     </p>
 
-    <article class="long-output">
+    <div class="row2-colhead">
+      <span>Representation</span>
+      <span>Value</span>
+    </div>
+
+    <div class="row2">
       <div class="row2-left">
-        <h3>Binary of the text inputs</h3>
-        <p class="output-meta" id="binary-text-meta"></p>
+        <span class="repr-label">Binary of the text inputs</span>
+        <span class="repr-note" id="binary-text-meta"></span>
       </div>
       <div class="row2-right">
         <pre class="scroll-box" id="binary-text"></pre>
         <button class="copy-btn" data-copy-target="binary-text" type="button">Copy in full</button>
       </div>
-    </article>
+    </div>
 
-    <article class="long-output">
+    <div class="row2">
       <div class="row2-left">
-        <h3>Binary of the resulting UUID</h3>
-        <p class="output-meta" id="binary-uuid-meta"></p>
+        <span class="repr-label">Binary of the resulting UUID</span>
+        <span class="repr-note" id="binary-uuid-meta"></span>
       </div>
       <div class="row2-right">
         <pre class="scroll-box" id="binary-uuid"></pre>
         <button class="copy-btn" data-copy-target="binary-uuid" type="button">Copy in full</button>
       </div>
-    </article>
+    </div>
   </section>
 
 </main>

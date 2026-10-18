@@ -11,7 +11,6 @@
   --warn: #b45309;
   --warn-soft: #fffbeb;
   --good: #15803d;
-  --good-soft: #f0fdf4;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -63,7 +62,6 @@ code { font-family: var(--mono); font-size: 0.92em; }
 .callout li { margin-bottom: 0.35rem; }
 
 .callout-warn { border-left-color: var(--warn); background: var(--warn-soft); }
-.callout-contrast { border-left-color: var(--warn); background: var(--warn-soft); }
 
 /* --- Quick starts --- */
 
@@ -97,7 +95,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
 
 /* --- Inputs --- */
 
-.input-grid, .arith-grid {
+.input-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
   gap: 1.25rem;
@@ -125,7 +123,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
 
 /* --- The two primary inputs ---
    These two fields drive every value on the page, so they are deliberately
-   much larger than the secondary arithmetic inputs further down. */
+   the largest controls on it. */
 
 #inputs {
   background: var(--bg-soft);
@@ -339,26 +337,55 @@ code { font-family: var(--mono); font-size: 0.92em; }
   border: 1px solid var(--rule);
   border-radius: 3px;
   background: var(--bg);
-  padding: 0.3rem 0.4rem;
-  text-align: center;
+  padding: 0.35rem 0.5rem;
   font-family: var(--mono);
   font-size: 0.72rem;
-  line-height: 1.45;
-  min-width: 3.6rem;
+  line-height: 1.5;
+  /* Wide enough for the "binary 01001110" line without wrapping. */
+  min-width: 7.5rem;
 }
-.char-cell .glyph { font-size: 1rem; font-weight: 700; display: block; }
-.char-cell .code { color: var(--accent); display: block; }
-.char-cell .sub { color: var(--ink-soft); display: block; font-size: 0.68rem; }
+.char-cell .glyph {
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: block;
+  text-align: center;
+  padding-bottom: 0.2rem;
+  margin-bottom: 0.2rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* Each encoding is a labelled line: name on the left, value on the right. */
+.char-cell .cell-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+.char-cell .cell-key {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.char-cell .cell-val { font-variant-numeric: tabular-nums; }
+
+.char-cell .code .cell-val { color: var(--accent); font-weight: 700; }
+.char-cell .sub .cell-val { color: var(--ink-soft); font-size: 0.68rem; }
 .char-cell.non-alnum { border-color: var(--warn); background: var(--warn-soft); }
+
+/* Lead-in text above a run of representation rows. */
+.repr-lead { max-width: 80ch; margin: 0 0 0.75rem; }
 
 /* Representation rows reuse the same two-column pattern: name of the
    representation on the left, the representation itself on the right. */
-.repr-row .repr-label {
+.repr-label {
   font-size: 0.95rem;
   font-weight: 700;
   display: block;
 }
-.repr-row .repr-note {
+.repr-note {
   font-size: 0.83rem;
   color: var(--ink-soft);
   font-weight: 400;
@@ -392,18 +419,6 @@ code { font-family: var(--mono); font-size: 0.92em; }
   vertical-align: 1px;
 }
 
-/* --- Arithmetic --- */
-
-.arith-result {
-  font-family: var(--mono);
-  font-size: 1rem;
-  margin: 0.6rem 0 0;
-  padding: 0.5rem 0.7rem;
-  background: var(--good-soft);
-  border-left: 3px solid var(--good);
-  border-radius: 0 3px 3px 0;
-}
-
 /* --- Long outputs --- */
 
 .notation {
@@ -416,20 +431,6 @@ code { font-family: var(--mono); font-size: 0.92em; }
 .notation summary { cursor: pointer; font-weight: 600; }
 .notation ul { margin: 0.5rem 0; }
 
-/* Long outputs follow the same pattern: description on the left, the
-   complete value on the right. */
-.long-output {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: 1.5rem;
-  align-items: start;
-  margin-bottom: 1.25rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--bg-soft);
-}
-.long-output h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
 .output-meta { font-size: 0.88rem; color: var(--ink-soft); margin: 0; }
 
 /* Long outputs are complete and never truncated, so they scroll. */
@@ -464,8 +465,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
 @media (max-width: 56rem) {
   .row2,
   .row2-colhead,
-  .fpi-result,
-  .long-output {
+  .fpi-result {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.5rem;
   }
@@ -486,7 +486,6 @@ code { font-family: var(--mono); font-size: 0.92em; }
     --warn: #fcd34d;
     --warn-soft: #292524;
     --good: #86efac;
-    --good-soft: #14321f;
   }
   .example-buttons button[aria-pressed="true"],
   .stages li::before { color: #18181b; }
