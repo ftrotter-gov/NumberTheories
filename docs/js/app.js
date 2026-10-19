@@ -33,14 +33,8 @@ const el = {
   reprSystem: $('repr-system'),
   reprValueLabel: $('repr-value-label'),
   reprValue: $('repr-value'),
-  romanValue: $('roman-value'),
-  romanValueMeta: $('roman-value-meta'),
-  romanFpi: $('roman-fpi'),
-  romanFpiMeta: $('roman-fpi-meta'),
-  binaryText: $('binary-text'),
-  binaryTextMeta: $('binary-text-meta'),
-  binaryUuid: $('binary-uuid'),
-  binaryUuidMeta: $('binary-uuid-meta'),
+  reprUuid: $('repr-uuid'),
+  reprUuidLabel: $('repr-uuid-label'),
 };
 
 /* ---------- setup ---------- */
@@ -111,7 +105,16 @@ function columnHeadings(leftText, rightText) {
   return head;
 }
 
-function reprRow(label, value, { note, isEncoding } = {}) {
+let longRowSeq = 0;
+
+/**
+ * One row of the representation table.
+ *
+ * @param {object} opts
+ * @param {boolean} opts.long  very long output: scrollable, with a copy button,
+ *                             shown complete and never truncated.
+ */
+function reprRow(label, value, { note, isEncoding, long } = {}) {
   const labelEl = document.createElement('span');
   labelEl.className = 'repr-label';
   labelEl.textContent = label;
@@ -131,11 +134,27 @@ function reprRow(label, value, { note, isEncoding } = {}) {
     left.push(noteEl);
   }
 
-  const valueEl = document.createElement('p');
-  valueEl.className = isEncoding ? 'repr-value encoding' : 'repr-value';
-  valueEl.textContent = value;
+  if (!long) {
+    const valueEl = document.createElement('p');
+    valueEl.className = isEncoding ? 'repr-value encoding' : 'repr-value';
+    valueEl.textContent = value;
+    return row2(left, valueEl, 'repr-row');
+  }
 
-  return row2(left, valueEl, 'repr-row');
+  // Long values get the full scroll box plus a copy button, so the complete
+  // output stays available without swamping the row.
+  const box = document.createElement('pre');
+  box.className = 'scroll-box';
+  box.id = `long-output-${++longRowSeq}`;
+  box.textContent = value;
+
+  const copy = document.createElement('button');
+  copy.type = 'button';
+  copy.className = 'copy-btn';
+  copy.dataset.copyTarget = box.id;
+  copy.textContent = 'Copy in full';
+
+  return row2(left, [box, copy], 'repr-row');
 }
 
 /** Per-character grid plus the concatenated encodings, kept visually apart. */
@@ -217,9 +236,58 @@ function renderRepresentation(container, text) {
     }),
     reprRow('Hexadecimal, joined', info.hex, { isEncoding: true }),
     reprRow('Binary, per byte', info.spacedBinary, { note: '8 bits each' }),
+    reprRow('Binary, complete', info.binary, {
+      isEncoding: true,
+      note: `all ${info.byteCount * 8} bits, joined and untruncated`,
+      long: true,
+    }),
     reprRow('As one big-endian integer', groupDigits(info.bigInt.toString()), {
       isEncoding: true,
       note: 'all the bytes read as a single number',
+    }),
+    reprRow('Roman numeral, complete', toRoman(info.bigInt), {
+      isEncoding: true,
+      note: `that integer in Roman numerals — ${
+        toRoman(info.bigInt).length
+      } characters, untruncated`,
+      long: true,
+    })
+  );
+}
+
+/**
+ * The resulting UUID, in the same set of representations as the inputs.
+ *
+ * Kept in the same table so the comparison is direct: the UUID is always
+ * exactly 128 bits, however long the inputs were.
+ */
+function renderUuidRepresentation(container, uuid) {
+  container.replaceChildren();
+
+  const info = describeUuid(uuid);
+  const roman = toRoman(info.bigInt);
+
+  container.append(
+    columnHeadings('Representation', 'Value'),
+    reprRow('Canonical UUID', info.uuid, {
+      note: '8-4-4-4-12 hexadecimal digits',
+    }),
+    reprRow('Hexadecimal, per byte', info.spacedHex, { note: '16 bytes' }),
+    reprRow('Hexadecimal, joined', info.hex, { isEncoding: true }),
+    reprRow('Binary, per byte', info.spacedBinary, { note: '8 bits each' }),
+    reprRow('Binary, complete', info.binary, {
+      isEncoding: true,
+      note: 'all 128 bits, joined and untruncated',
+      long: true,
+    }),
+    reprRow('As one big-endian integer', groupDigits(info.bigInt.toString()), {
+      isEncoding: true,
+      note: 'the whole UUID read as a single number',
+    }),
+    reprRow('Roman numeral, complete', roman, {
+      isEncoding: true,
+      note: `that integer in Roman numerals — ${roman.length} characters, untruncated`,
+      long: true,
     })
   );
 }
@@ -351,37 +419,6 @@ function renderHints(systemId, value) {
   el.sourceCaution.hidden = !caution;
 }
 
-function renderLongOutputs(result, value) {
-  const valueInfo = describeText(value);
-  const systemInfo = describeText(result.systemName);
-  const uuidInfo = describeUuid(result.fpi);
-
-  // --- Roman ---
-  const valueRoman = toRoman(valueInfo.bigInt);
-  el.romanValue.textContent = valueRoman;
-  el.romanValueMeta.textContent = value
-    ? `"${value}" as a big-endian integer is ${valueInfo.bigInt}, written in ${valueRoman.length} Roman characters.`
-    : 'Nothing entered yet.';
-
-  const fpiRoman = toRoman(uuidInfo.bigInt);
-  el.romanFpi.textContent = fpiRoman;
-  el.romanFpiMeta.textContent = `The 128-bit UUID as an integer is ${uuidInfo.bigInt} \u2014 ${fpiRoman.length} Roman characters, shown complete and untruncated.`;
-
-  // --- Binary ---
-  el.binaryText.textContent =
-    `System name "${result.systemName}" (${systemInfo.byteCount} bytes):\n` +
-    `${systemInfo.spacedBinary}\n\n` +
-    `Identifier value "${value}" (${valueInfo.byteCount} bytes):\n` +
-    `${valueInfo.spacedBinary || '(empty)'}`;
-  el.binaryTextMeta.textContent = `What you typed, as UTF-8 bits: ${
-    systemInfo.byteCount * 8
-  } bits for the system name and ${valueInfo.byteCount * 8} bits for the value.`;
-
-  el.binaryUuid.textContent = uuidInfo.spacedBinary;
-  el.binaryUuidMeta.textContent =
-    'The resulting UUID is always exactly 128 bits, whatever the length of the inputs. This is hash output, not an encoding of the text above.';
-}
-
 /* ---------- the single render pass ---------- */
 
 function render(activeExampleId = null) {
@@ -404,13 +441,21 @@ function render(activeExampleId = null) {
   renderRepresentation(el.reprSystem, result.systemName);
   renderRepresentation(el.reprValue, value);
 
-  renderLongOutputs(result, value);
+  el.reprUuidLabel.textContent = result.fpi;
+  renderUuidRepresentation(el.reprUuid, result.fpi);
+
+  // Copy buttons are recreated on every render, so rewire them each time.
+  wireCopyButtons();
 }
 
 /* ---------- copy buttons ---------- */
 
 function wireCopyButtons() {
   for (const button of document.querySelectorAll('.copy-btn')) {
+    // Rows are rebuilt on every render, so skip anything already wired.
+    if (button.dataset.wired) continue;
+    button.dataset.wired = 'true';
+
     button.addEventListener('click', async () => {
       const target = document.getElementById(button.dataset.copyTarget);
       if (!target) return;

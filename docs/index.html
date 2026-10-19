@@ -132,14 +132,17 @@
 
     <h3>Identifier value: <code id="repr-value-label"></code></h3>
     <div id="repr-value"></div>
-  </section>
 
-  <!-- 5. Full Roman ---------------------------------------------------- -->
-  <section id="roman">
-    <h2>Complete Roman numeral output</h2>
+    <h3>Resulting FPI: <code id="repr-uuid-label"></code></h3>
+    <p class="field-help repr-lead">
+      The same representations applied to the hash output. However long the
+      inputs are, the UUID is always exactly 128 bits &mdash; and unlike the
+      rows above, it cannot be turned back into what produced it.
+    </p>
+    <div id="repr-uuid"></div>
 
     <details class="notation">
-      <summary>Notation for values beyond the ordinary Roman range</summary>
+      <summary>Notation for Roman numerals beyond the ordinary range</summary>
       <p>
         Ordinary Roman numerals stop at 3,999. The numbers here go far past
         that, so each wrapping pair of parentheses multiplies by 1,000 &mdash;
@@ -152,72 +155,8 @@
         <li><code>((I))(I)CMLXXXVII</code> = 1,001,987</li>
         <li><code>nulla</code> = zero, which Roman numerals have no symbol for</li>
       </ul>
-      <p>Nothing below is truncated, however long it runs.</p>
+      <p>No Roman or binary output on this page is ever truncated.</p>
     </details>
-
-    <div class="row2-colhead">
-      <span>Representation</span>
-      <span>Value</span>
-    </div>
-
-    <div class="row2">
-      <div class="row2-left">
-        <span class="repr-label">Identifier value as a Roman numeral</span>
-        <span class="repr-note" id="roman-value-meta"></span>
-      </div>
-      <div class="row2-right">
-        <pre class="scroll-box" id="roman-value"></pre>
-        <button class="copy-btn" data-copy-target="roman-value" type="button">Copy in full</button>
-      </div>
-    </div>
-
-    <div class="row2">
-      <div class="row2-left">
-        <span class="repr-label">Resulting FPI as a Roman numeral</span>
-        <span class="repr-note" id="roman-fpi-meta"></span>
-      </div>
-      <div class="row2-right">
-        <pre class="scroll-box" id="roman-fpi"></pre>
-        <button class="copy-btn" data-copy-target="roman-fpi" type="button">Copy in full</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6. Full binary --------------------------------------------------- -->
-  <section id="binary">
-    <h2>Complete binary output</h2>
-    <p class="section-intro">
-      Binary for the <strong>text inputs</strong> is listed separately from
-      binary for the <strong>resulting UUID</strong>. They are different things:
-      one is an encoding of what you typed, the other is the hash output.
-    </p>
-
-    <div class="row2-colhead">
-      <span>Representation</span>
-      <span>Value</span>
-    </div>
-
-    <div class="row2">
-      <div class="row2-left">
-        <span class="repr-label">Binary of the text inputs</span>
-        <span class="repr-note" id="binary-text-meta"></span>
-      </div>
-      <div class="row2-right">
-        <pre class="scroll-box" id="binary-text"></pre>
-        <button class="copy-btn" data-copy-target="binary-text" type="button">Copy in full</button>
-      </div>
-    </div>
-
-    <div class="row2">
-      <div class="row2-left">
-        <span class="repr-label">Binary of the resulting UUID</span>
-        <span class="repr-note" id="binary-uuid-meta"></span>
-      </div>
-      <div class="row2-right">
-        <pre class="scroll-box" id="binary-uuid"></pre>
-        <button class="copy-btn" data-copy-target="binary-uuid" type="button">Copy in full</button>
-      </div>
-    </div>
   </section>
 
 </main>
